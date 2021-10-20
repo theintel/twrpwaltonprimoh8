@@ -1,1 +1,1 @@
-file names ending with s and t before extensive correspond respectively to stock and twrp version of the file
+File names ending with "s" and "t" before file extensions correspond respectively to stock and twrp versions of the file.

@@ -1,6 +1,7 @@
 This will consist of all the unsuccessful and successful builds.
 
- "Build 0"
+**Build 0**
+
 Replace zimage and kernel_offset file
 Replace ramdisk/etc/recovery.fstab file
 

@@ -25,7 +25,7 @@ Searching for the text "tpd_i2c" in stock recovery kernel log file /cache/recove
 
 Minimal patch on build 1 and onwards:
 
-*Unmodified in twrp split_img as these are the same in stock and twrp*
+*Unmodified in twrp split_img as these are the same in stock and twrp:*
 base
 kernel_offset
 imgtype
@@ -36,32 +36,32 @@ ramdiskcomp
 ramdisk_offset
 pagesize tags_offset
 
-*Unmodified in twrp split_img*
+*Unmodified in twrp split_img:*
 Cmdline
 origsize
 recovery.img-ramdisk.cpio.gz
 
-*Replacement in twrp split_img*
+*Replacement in twrp split_img:*
 board
 os_version
 os_patch_level
 kernel (touch enabled)
 
-*Addition to twrp split_img"
+*Addition to twrp split_img:*
 avbtype
 sigtype
 
 
-*Unmodified in twrp ramdisk*
+*Unmodified in twrp ramdisk:*
 default.prop symlink to prop.default
 sbin/ueventd symlink to init
 
-*Replacement in twrp ramdisk*
+*Replacement in twrp ramdisk:*
 prop.default
 etc/recovery.fstab
 ueventd.rc
 
-*Addition to twrp ramdisk*
+*Addition to twrp ramdisk:*
 fstab.enableswap
 
 

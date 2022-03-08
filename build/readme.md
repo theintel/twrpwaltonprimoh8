@@ -69,3 +69,11 @@ RESULT
 
 kernel file size mismatch resulted in kernel offset anomaly and eventual futile recovery boot before normal boot.
 
+
+
+**Build 2**
+The touch enabled but size mismatched kernel was superseded with the stock kernel which had disabled touch.
+
+RESULT
+
+Recovery booted up in twrp successfully and no data decryption issue was encountered. But the touch sensor was disabled and locking twrp screen with power button was the only way of interaction with twrp.

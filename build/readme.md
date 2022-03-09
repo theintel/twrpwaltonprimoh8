@@ -77,3 +77,21 @@ The touch enabled but size mismatched kernel was superseded with the stock kerne
 RESULT
 
 Recovery booted up in twrp successfully and no data decryption issue was encountered. But the touch sensor was disabled and locking twrp screen with power button was the only way of interaction with twrp.
+
+
+
+**Build 3**
+Installed magisk module "cross compiled binaries" by zackptg5 and installed original gzip v1.10 via terminal command "ccbins". After two reboots, command "gzip -h" demonstrated the flag "-n or --no--name". Recompression of the recovery.img-zImage_hexfix kernel file with command "gzip -n -k -9" resulted in compressed gzip kernel of size 6993326 which is 1 byte less than size of hexnotfix_errorfree gzip kernel. This nuanced size mismatch was fixed by appending 10 lines of eight "00" bytes or 80 bytes at the end of recovery.img-zImage_hexfix kernel which increased the file size from 22040576 to 22040656. This time the recompression created a gzip size of 6993327 bytes matching exactly with hexnotfix_errorfree gzip kernel.
+After appending header and footer data the final recovery.img-zImage kernel file reached a size of 7077184 that matched with the stock kernel which had disabled touch.
+
+RESULT
+Supplantation of stock kernel by the new touch sensor hex fixed kernel and repacking before flashing the recovery successfully booted up in twrp with touch sensor enabled.
+cache/recovery/last_kmsg last stock kernel log:
+
+[    1.735551] -(0)[194:kworker/u8:3][<c0288c78>] (enable_irq) from [<c092f428>] (gt1x_irq_enable+0x38/0x50)
+[    1.735606] -(0)[194:kworker/u8:3] r6:c1404948 r5:60000113 r4:c17f9ba0
+[    1.735660] -(0)[194:kworker/u8:3][<c092f3f0>] (gt1x_irq_enable) from [<c092fb48>] (tpd_i2c_probe+0x1e0/0x2f4)
+[    1.735714] -(0)[194:kworker/u8:3] r5:00000000 r4:c17f9ba0
+[    1.735756] -(0)[194:kworker/u8:3][<c092f968>] (tpd_i2c_probe) from [<c0939870>] (i2c_device_probe+0x1d8/0x20c)
+[    1.735811] -(0)[194:kworker/u8:3] r8:c092f968 r7:cf748a04 r6:cf748a20 r5:cf748a00
+[    1.735877] -(0)[194:kworker/u8:3][<c0939698>] (i2c_device_probe) from [<c053cedc>] (driver_probe_device+0x318/0x470)

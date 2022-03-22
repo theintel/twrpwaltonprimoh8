@@ -95,3 +95,58 @@ cache/recovery/last_kmsg last stock kernel log:
 [    1.735756] -(0)[194:kworker/u8:3][<c092f968>] (tpd_i2c_probe) from [<c0939870>] (i2c_device_probe+0x1d8/0x20c)
 [    1.735811] -(0)[194:kworker/u8:3] r8:c092f968 r7:cf748a04 r6:cf748a20 r5:cf748a00
 [    1.735877] -(0)[194:kworker/u8:3][<c0939698>] (i2c_device_probe) from [<c053cedc>] (driver_probe_device+0x318/0x470)
+
+
+external sdcard and usb otg is parsed by voldlines in /ramdisk/etc/recovery.fstab and not by mmcblk1* and sda* due to unsupported wildcards in twrp 3.3.1 which is evident in recovery log:
+
+*working usb otg partition by voldline:*
+/auto2 |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
+   Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Removable Is_Storage 
+   Display_Name: Storage
+   Storage_Name: Storage
+   Backup_Path: /auto2
+   Backup_Name: auto2
+   Backup_Display_Name: Storage
+   Storage_Path: /auto2
+   Current_File_System: vfat
+   Fstab_File_System: vfat
+   Backup_Method: files
+   MTP_Storage_ID: 65540
+
+ *Detection:*
+
+I:Found a match 'sda' '/devices/platform/mt_usb'
+I:Decrypt adopted storage starting
+I:PageManager::LoadFileToBuffer loading filename: '/data/system/storage.xml' directly
+I:successfully loaded storage.xml
+I:No adopted storage so finding actual block device
+I:Processing '/auto2-1'
+I:Created '/auto2-1' folder.
+/auto2-1 | /dev/block//sda1 | Size: 60484MB Used: 14485MB Free: 45998MB Backup Size: 14485MB
+   Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Is_SubPartition Removable IsPresent Is_Storage 
+   SubPartition_Of: /auto2
+   Primary_Block_Device: /dev/block//sda1
+   Display_Name: Storage 1
+   Storage_Name: Storage 1
+   Backup_Path: /auto2-1
+   Backup_Name: auto2-1
+   Backup_Display_Name: auto2-1
+   Storage_Path: /auto2-1
+   Current_File_System: vfat
+   Fstab_File_System: auto
+   Backup_Method: files
+
+*not working usb otg partition by standard twrp line:*
+/usbotg |  | Size: 0MB
+   Flags: Can_Be_Wiped 
+   Primary_Block_Device: /dev/block/sda*
+   Display_Name: usbotg
+   Storage_Name: usbotg
+   Backup_Path: /usbotg
+   Backup_Name: usbotg
+   Backup_Display_Name: usbotg
+   Storage_Path: /usbotg
+   Current_File_System: auto
+   Fstab_File_System: auto
+   Backup_Method: files
+   Mount_Flags: 0, Mount_Options: flags=display="USB-OTG";storage;removable;backup=0

@@ -136,6 +136,8 @@ I:Created '/auto2-1' folder.
    Fstab_File_System: auto
    Backup_Method: files
 
+"Select storage" tab in backup option shows it as "Auto 1"
+
 *not working usb otg partition by standard twrp line:*
 /usbotg |  | Size: 0MB
    Flags: Can_Be_Wiped 
@@ -150,3 +152,17 @@ I:Created '/auto2-1' folder.
    Fstab_File_System: auto
    Backup_Method: files
    Mount_Flags: 0, Mount_Options: flags=display="USB-OTG";storage;removable;backup=0
+
+
+
+
+**Build 4**
+edit lines in *ramdisk/etc/recovery.fstab*
+comment out voldmanaged=flags appending # at the start
+# /devices/bootdevice* auto vfat defaults voldmanaged=sdcard0:auto
+# /devices/platform/externdevice* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
+# /devices/platform/mt_usb* auto vfat defaults voldmanaged=usbotg:auto
+
+RESULT
+No error and no auto0 auto1 auto2 storage creation in recovery.log but usb otg and external sdcard are not mounted anymore owing to commenting out voldlines and twrp not actually supporting wildcards in fstab v1.
+Check ERROR3 in bug fix log for details.

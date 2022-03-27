@@ -64,11 +64,16 @@ ueventd.rc
 *Addition to twrp ramdisk:*
 fstab.enableswap
 
+Replaced files were actually their respective stock version except the etc/recovery.fstab file in twrp ramdisk - which had the following additional lines at the end for external sdcard and usb otg support:
+
+These lines may require manual formatting due to copying from a twrp fstab written in v1 with semicolon delimited flags:
+
+/dev/block/mmcblk1* /external_sd auto flags=display="External SDcard";storage;wipeingui;removable;backup=0
+/dev/block/sda* /usbotg auto flags=display="USB-OTG";storage;removable;backup=0
 
 RESULT
 
 kernel file size mismatch resulted in kernel offset anomaly and eventual futile recovery boot before normal boot.
-
 
 
 **Build 2**
@@ -136,9 +141,11 @@ I:Created '/auto2-1' folder.
    Fstab_File_System: auto
    Backup_Method: files
 
-"Select storage" tab in backup option shows it as "Auto 1"
+"Select storage" tab in backup option shows it as "Storage 1"
 
-*not working usb otg partition by standard twrp line:*
+Mixing semicolon delimited flags for fstab v1 with comma delimited flags for fstab v1 caused twrp not to parse flags in v1.
+
+*not working usb otg partition by standard twrp line at the end:*
 /usbotg |  | Size: 0MB
    Flags: Can_Be_Wiped 
    Primary_Block_Device: /dev/block/sda*
@@ -164,5 +171,55 @@ comment out voldmanaged=flags appending # at the start
 # /devices/platform/mt_usb* auto vfat defaults voldmanaged=usbotg:auto
 
 RESULT
-No error and no auto0 auto1 auto2 storage creation in recovery.log but usb otg and external sdcard are not mounted anymore owing to commenting out voldlines and twrp not actually supporting wildcards in fstab v1.
+No error and no auto0 auto1 auto2 storage creation in recovery.log but usb otg and external sdcard are not mounted anymore owing to commenting out voldlines and twrp not actually supporting wildcards in fstab v2.
 Check ERROR3 in bug fix log for details.
+
+
+
+
+**Build 5**
+Transform fstab flags v1 to v2 by removing flags= and replace semicolons with commas.
+Remove wildcards by writing the default partitions of external storage and usb otg:
+/dev/block/mmcblk1p1 /external_sd auto display="External SDcard",storage,wipeingui,removable,backup=0
+/dev/block/sda1 /usbotg auto display="USB-OTG",storage,removable,backup=0
+
+
+RESULT
+If no otg is connected, 2 warnings are logged during backup but none during backup deletion in restore tab. If an otg is connected, no warning is shown during backup and mount otg is tickable after 30s.
+otg is unmountable when pwd is in a /usbotg* subdirectory.
+Preconnected otg is mountable after 30s since russia splash screen shows up. So the kernel initiation time is around 30s.
+reconnection after twrp boot and reopening mount tab makes otg mountable
+3s for reconnect after complete boot.
+otg is not extant in select storage list.
+otg to sdcard file copy and vice versa working but copying folder to otg takes long time.
+
+Removing wildcards seem to cause the log to include sightly different lines. Mount options in twrp also included unelectable external storage and usb otg for the first 30 seconds. Every press prompted the log to include:
+I:Unable to mount '/external_sd'
+I:Actual block device: '', current file system: 'auto'
+Failed to mount '/usbotg' (No such device)
+I:Actual block device: '', current file system: 'auto'
+
+But this time there was Size and Used data check in mount log:
+/external_sd |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
+   Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Removable Is_Storage 
+   Primary_Block_Device: /dev/block/mmcblk1p1
+/usbotg |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
+   Flags: Can_Be_Mounted Can_Be_Wiped 
+   Primary_Block_Device: /dev/block/sda1
+
+First detection and mount:
+I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host0/target0:0:0/0:0:0:0/block/sda' - add
+
+Removal:
+I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host0/target0:0:0/0:0:0:0/block/sda' - remove
+Failed to mount '/usbotg' (No such file or directory)
+I:Actual block device: '/dev/block/sda1', current file system: 'vfat'
+
+Different host2 mount in third connection:
+I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host2/target2:0:0/2:0:0:0/block/sda' - add
+I:Set page: 'main'
+
+EVEN host1 mount was noticed when connecting usb otg drive in normally booted android.
+
+recovery.log indicates that the v2 flags were parsed as usual but 
+usb otg storage detection was not working for the first 30s since twrp boot. But the kernel created /dev/block/sda block device files immediately with usb otg attachment which was manifest through twrp file manager.

@@ -1,3 +1,5 @@
+***All the necessary files utilized and generated for the following procedure are available at [](../work/kernelfix)***
+
 Touch fixation
 Get the memory address of touch panel drivers in the kernel
 "echo 0 > /proc/sys/kernel/kptr_restrict
@@ -89,3 +91,5 @@ File pointer will change if the size of the kernel changes. Gzip file size misma
 Kernel recompression
 
 Installed magisk module "cross compiled binaries" by zackptg5 and installed original gzip v1.10 via terminal command "ccbins". After two reboots, command "gzip -h" demonstrated the flag "-n or --no--name". Recompression of the recovery.img-zImage_hexfix kernel file with command "gzip -n -k -9" resulted in compressed gzip kernel of size 6993326 which is 1 byte less than size of hexnotfix_errorfree gzip kernel. This nuanced size mismatch was fixed by appending 10 lines of eight "00" bytes or 80 bytes at the end of recovery.img-zImage_hexfix kernel which increased the file size from 22040576 to 22040656. This time the recompression created a gzip size of 6993327 bytes matching exactly with hexnotfix_errorfree gzip kernel. After appending header and footer data the final recovery.img-zImage kernel file reached a size of 7077184 that matched with the stock kernel which had disabled touch.
+
+**[Final touch ENABLED kernel](../work/kernelfix/recovery.img-kernel_touch_enabled)**

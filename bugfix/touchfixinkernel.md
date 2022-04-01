@@ -1,4 +1,4 @@
-***All the necessary files utilized and generated for the following procedure are available at [](../work/kernelfix)***
+***All the necessary files utilized and generated for the following procedure are available at [work/kernelfix](../work/kernelfix)***
 
 Touch fixation
 Get the memory address of touch panel drivers in the kernel

@@ -84,3 +84,8 @@ Paste header in kernel followed by footer paste at the end
 
 
 File pointer will change if the size of the kernel changes. Gzip file size mismatch is acceptable as per github instructions and pdf tutorial 6243 to 6271 kilobytes. But practical experience connotes otherwise.
+
+
+Kernel recompression
+
+Installed magisk module "cross compiled binaries" by zackptg5 and installed original gzip v1.10 via terminal command "ccbins". After two reboots, command "gzip -h" demonstrated the flag "-n or --no--name". Recompression of the recovery.img-zImage_hexfix kernel file with command "gzip -n -k -9" resulted in compressed gzip kernel of size 6993326 which is 1 byte less than size of hexnotfix_errorfree gzip kernel. This nuanced size mismatch was fixed by appending 10 lines of eight "00" bytes or 80 bytes at the end of recovery.img-zImage_hexfix kernel which increased the file size from 22040576 to 22040656. This time the recompression created a gzip size of 6993327 bytes matching exactly with hexnotfix_errorfree gzip kernel. After appending header and footer data the final recovery.img-zImage kernel file reached a size of 7077184 that matched with the stock kernel which had disabled touch.

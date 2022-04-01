@@ -90,8 +90,9 @@ Recovery booted up in twrp successfully and no data decryption issue was encount
 
 
 **Build 3**
-Installed magisk module "cross compiled binaries" by zackptg5 and installed original gzip v1.10 via terminal command "ccbins". After two reboots, command "gzip -h" demonstrated the flag "-n or --no--name". Recompression of the recovery.img-zImage_hexfix kernel file with command "gzip -n -k -9" resulted in compressed gzip kernel of size 6993326 which is 1 byte less than size of hexnotfix_errorfree gzip kernel. This nuanced size mismatch was fixed by appending 10 lines of eight "00" bytes or 80 bytes at the end of recovery.img-zImage_hexfix kernel which increased the file size from 22040576 to 22040656. This time the recompression created a gzip size of 6993327 bytes matching exactly with hexnotfix_errorfree gzip kernel.
-After appending header and footer data the final recovery.img-zImage kernel file reached a size of 7077184 that matched with the stock kernel which had disabled touch.
+Fixed touch in stock kernel located in in `split_img/recoverys.img_kernel` following numerous tutorials.
+Check [no touch in stock kernel ISSUE](https://github.com/theintel/twrpwaltonprimoh8/issues/10) for discussion and learning resources on the issue.
+Check this [readme entry in bugfix](./bugfix/touchfixinkernel.md) for detailed fixation procedure.
 
 RESULT
 Supplantation of stock kernel by the new touch sensor hex fixed kernel and repacking before flashing the recovery successfully booted up in twrp with touch sensor enabled.
@@ -155,6 +156,7 @@ I:Created '/auto2-1' folder.
 Mixing semicolon delimited flags for fstab v1 with comma delimited flags for fstab v1 caused twrp not to parse flags in v1.
 
 *not working usb otg partition by standard twrp line at the end:*
+
 `
 /usbotg |  | Size: 0MB
    Flags: Can_Be_Wiped 
@@ -175,10 +177,12 @@ Mixing semicolon delimited flags for fstab v1 with comma delimited flags for fst
 
 **Build 4**
 edit lines in *ramdisk/etc/recovery.fstab*
-comment out voldmanaged=flags appending # at the start
+comment out voldmanaged=flags appending # at the start:
+`
 # /devices/bootdevice* auto vfat defaults voldmanaged=sdcard0:auto
 # /devices/platform/externdevice* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
 # /devices/platform/mt_usb* auto vfat defaults voldmanaged=usbotg:auto
+`
 
 RESULT
 No error and no auto0 auto1 auto2 storage creation in recovery.log but usb otg and external sdcard are not mounted anymore owing to commenting out voldlines and twrp not actually supporting wildcards in fstab v2.

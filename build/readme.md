@@ -90,7 +90,7 @@ Recovery booted up in twrp successfully and no data decryption issue was encount
 
 
 **Build 3**
-Fixed touch in stock kernel located in in `split_img/recoverys.img_kernel` following numerous tutorials.
+Fixed touch in stock kernel located in in `res/recovery_stock/split_img/recoverys.img_kernel` following numerous tutorials.
 Check [no touch in stock kernel ISSUE](https://github.com/theintel/twrpwaltonprimoh8/issues/10) for discussion and learning resources on the issue.
 Check this [readme entry in bugfix](./bugfix/touchfixinkernel.md) for detailed fixation procedure.
 

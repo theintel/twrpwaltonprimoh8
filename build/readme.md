@@ -189,7 +189,7 @@ If no otg is connected, 2 warnings are logged during backup but none during back
 otg is unmountable when pwd is in a /usbotg* subdirectory.
 Preconnected otg is mountable after 30s since russia splash screen shows up. So the kernel initiation time is around 30s.
 reconnection after twrp boot and reopening mount tab makes otg mountable
-3s for reconnect after complete boot.
+3s for reconnect after complete twrp boot.
 otg is not extant in select storage list.
 otg to sdcard file copy and vice versa working but copying folder to otg takes long time.
 
@@ -221,5 +221,59 @@ I:Set page: 'main'
 
 EVEN host1 mount was noticed when connecting usb otg drive in normally booted android.
 
-recovery.log indicates that the v2 flags were parsed as usual but 
-usb otg storage detection was not working for the first 30s since twrp boot. But the kernel created /dev/block/sda block device files immediately with usb otg attachment which was manifest through twrp file manager.
+recovery.log indicates that the v2 flags were parsed as usual but usb otg storage detection was not working for the first 30s since twrp boot. But the kernel created /dev/block/sda block device files immediately with usb otg attachment which was manifest through twrp file manager.
+
+
+
+**BUILD 6**
+replace BUILD 3 recovery.fstab with stock recoverys.fstab
+
+RESULT
+The vold drives were actually processed successfully in build 3:
+I:Unable to mount '/auto0'
+I:Actual block device: '', current file system: 'vfat'
+
+*UNABLE TO MOUNT indicates the storage may not be available while FAILED TO MOUNT indicates twrp presaged the device to be available.*
+
+All the necessary flags were parsed automatically:
+/auto0 |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
+   Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Removable Is_Storage 
+
+But the Primary_Block_Device: /dev/block//sda1 was absent preliminary which was only included upon osb otg connection and mount:
+:Processing '/auto2-1'
+I:Created '/auto2-1' folder.
+SubPartition_Of: /auto2
+   Primary_Block_Device: /dev/block//sda1
+
+The mount points were auto generated as /auto0 /auto1 /auto2 as per the instructions. The display names were all set to Storage automatically with mount points making them distinct.
+
+usb otg detection in recovery.log:
+
+I:Found a match 'sda' '/devices/platform/mt_usb'
+I:Decrypt adopted storage starting
+I:PageManager::LoadFileToBuffer loading filename: '/data/system/storage.xml' directly
+I:successfully loaded storage.xml
+I:No adopted storage so finding actual block device
+I:Processing '/auto2-1'
+I:Created '/auto2-1' folder.
+/auto2-1 | /dev/block//sda1 | Size: 60484MB Used: 14461MB Free: 46022MB Backup Size: 14461MB
+   Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Is_SubPartition Removable IsPresent Is_Storage 
+   SubPartition_Of: /auto2
+   Primary_Block_Device: /dev/block//sda1
+   Display_Name: Storage 1
+   Storage_Name: Storage 1
+   Backup_Path: /auto2-1
+   Backup_Name: auto2-1
+   Backup_Display_Name: auto2-1
+   Storage_Path: /auto2-1
+   Current_File_System: vfat
+   Fstab_File_System: auto
+   Backup_Method: files
+
+Vold is noticeably slow in mounting and unmounting otg.
+
+usb otg removal:
+I:/auto2-1 was removed by uevent data
+I:Set page: 'mount'
+I:Is_Mounted: Unable to find partition for path '/auto2-1'
+I:Is_Mounted: Unable to find partition for path '/auto2-1'

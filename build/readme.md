@@ -14,10 +14,12 @@ The ramdisk/sbin/init scripts are distinct from boot and stock recovery init scr
 
 Searching for the text "tpd_i2c" in stock recovery kernel log file /cache/recovery/last_kmsg unveiled that the touch driver was indeed removed during initiation:
 
+`
 <4>[    1.098785] -(2)[53:kworker/u8:1][<c092e578>] (gt1x_deinit) from [<c092f0bc>] (tpd_i2c_remove+0x10/0x28)
 <4>[    1.098796] -(2)[53:kworker/u8:1] r5:cf72d200 r4:c14a81cc
 <4>[    1.098806] -(2)[53:kworker/u8:1][<c092f0ac>] (tpd_i2c_remove) from [<c0939660>] (i2c_device_remove+0x64/0x9c)
 <4>[    1.098816] -(2)[53:kworker/u8:1][<c09395fc>] (i2c_device_remove) from [<c053d230>] 
+`
 
 
 
@@ -68,8 +70,10 @@ Replaced files were actually their respective stock version except the etc/recov
 
 These lines may require manual formatting due to copying from a twrp fstab written in v1 with semicolon delimited flags:
 
+`
 /dev/block/mmcblk1* /external_sd auto flags=display="External SDcard";storage;wipeingui;removable;backup=0
 /dev/block/sda* /usbotg auto flags=display="USB-OTG";storage;removable;backup=0
+`
 
 RESULT
 
@@ -93,6 +97,7 @@ RESULT
 Supplantation of stock kernel by the new touch sensor hex fixed kernel and repacking before flashing the recovery successfully booted up in twrp with touch sensor enabled.
 cache/recovery/last_kmsg last stock kernel log:
 
+`
 [    1.735551] -(0)[194:kworker/u8:3][<c0288c78>] (enable_irq) from [<c092f428>] (gt1x_irq_enable+0x38/0x50)
 [    1.735606] -(0)[194:kworker/u8:3] r6:c1404948 r5:60000113 r4:c17f9ba0
 [    1.735660] -(0)[194:kworker/u8:3][<c092f3f0>] (gt1x_irq_enable) from [<c092fb48>] (tpd_i2c_probe+0x1e0/0x2f4)
@@ -100,11 +105,12 @@ cache/recovery/last_kmsg last stock kernel log:
 [    1.735756] -(0)[194:kworker/u8:3][<c092f968>] (tpd_i2c_probe) from [<c0939870>] (i2c_device_probe+0x1d8/0x20c)
 [    1.735811] -(0)[194:kworker/u8:3] r8:c092f968 r7:cf748a04 r6:cf748a20 r5:cf748a00
 [    1.735877] -(0)[194:kworker/u8:3][<c0939698>] (i2c_device_probe) from [<c053cedc>] (driver_probe_device+0x318/0x470)
-
+`
 
 external sdcard and usb otg is parsed by voldlines in /ramdisk/etc/recovery.fstab and not by mmcblk1* and sda* due to unsupported wildcards in twrp 3.3.1 which is evident in recovery log:
 
 *working usb otg partition by voldline:*
+`
 /auto2 |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
    Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Removable Is_Storage 
    Display_Name: Storage
@@ -117,9 +123,11 @@ external sdcard and usb otg is parsed by voldlines in /ramdisk/etc/recovery.fsta
    Fstab_File_System: vfat
    Backup_Method: files
    MTP_Storage_ID: 65540
+`
 
  *Detection:*
 
+`
 I:Found a match 'sda' '/devices/platform/mt_usb'
 I:Decrypt adopted storage starting
 I:PageManager::LoadFileToBuffer loading filename: '/data/system/storage.xml' directly
@@ -140,12 +148,14 @@ I:Created '/auto2-1' folder.
    Current_File_System: vfat
    Fstab_File_System: auto
    Backup_Method: files
+`
 
 "Select storage" tab in backup option shows it as "Storage 1"
 
 Mixing semicolon delimited flags for fstab v1 with comma delimited flags for fstab v1 caused twrp not to parse flags in v1.
 
 *not working usb otg partition by standard twrp line at the end:*
+`
 /usbotg |  | Size: 0MB
    Flags: Can_Be_Wiped 
    Primary_Block_Device: /dev/block/sda*
@@ -159,7 +169,7 @@ Mixing semicolon delimited flags for fstab v1 with comma delimited flags for fst
    Fstab_File_System: auto
    Backup_Method: files
    Mount_Flags: 0, Mount_Options: flags=display="USB-OTG";storage;removable;backup=0
-
+`
 
 
 

@@ -1,0 +1,3 @@
+/internalsd vfat /devices/bootdevice*
+/externalsd auto /devices/platform/externdevice* display="External SDcard",storage,wipeingui,removable,backup=0
+/usbotg vfat /devices/platform/mt_usb* display="USB-OTG",storage,removable,backup=0

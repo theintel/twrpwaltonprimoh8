@@ -194,13 +194,15 @@ Check ERROR3 in bug fix log for details.
 **Build 5**
 Transform fstab flags v1 to v2 by removing flags= and replace semicolons with commas.
 Remove wildcards by writing the default partitions of external storage and usb otg:
+`
 /dev/block/mmcblk1p1 /external_sd auto display="External SDcard",storage,wipeingui,removable,backup=0
 /dev/block/sda1 /usbotg auto display="USB-OTG",storage,removable,backup=0
+`
 
 
 RESULT
 If no otg is connected, 2 warnings are logged during backup but none during backup deletion in restore tab. If an otg is connected, no warning is shown during backup and mount otg is tickable after 30s.
-otg is unmountable when pwd is in a /usbotg* subdirectory.
+otg is unmountable when `pwd` is in a /usbotg* subdirectory.
 Preconnected otg is mountable after 30s since russia splash screen shows up. So the kernel initiation time is around 30s.
 reconnection after twrp boot and reopening mount tab makes otg mountable
 3s for reconnect after complete twrp boot.
@@ -208,30 +210,40 @@ otg is not extant in select storage list.
 otg to sdcard file copy and vice versa working but copying folder to otg takes long time.
 
 Removing wildcards seem to cause the log to include sightly different lines. Mount options in twrp also included unelectable external storage and usb otg for the first 30 seconds. Every press prompted the log to include:
+`
 I:Unable to mount '/external_sd'
 I:Actual block device: '', current file system: 'auto'
 Failed to mount '/usbotg' (No such device)
 I:Actual block device: '', current file system: 'auto'
+`
 
 But this time there was Size and Used data check in mount log:
+`
 /external_sd |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
    Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Removable Is_Storage 
    Primary_Block_Device: /dev/block/mmcblk1p1
 /usbotg |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
    Flags: Can_Be_Mounted Can_Be_Wiped 
    Primary_Block_Device: /dev/block/sda1
+`
 
 First detection and mount:
+`
 I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host0/target0:0:0/0:0:0:0/block/sda' - add
+`
 
 Removal:
+`
 I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host0/target0:0:0/0:0:0:0/block/sda' - remove
 Failed to mount '/usbotg' (No such file or directory)
 I:Actual block device: '/dev/block/sda1', current file system: 'vfat'
+`
 
 Different host2 mount in third connection:
+`
 I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host2/target2:0:0/2:0:0:0/block/sda' - add
 I:Set page: 'main'
+`
 
 EVEN host1 mount was noticed when connecting usb otg drive in normally booted android.
 
@@ -244,25 +256,32 @@ replace BUILD 3 recovery.fstab with stock recoverys.fstab
 
 RESULT
 The vold drives were actually processed successfully in build 3:
+`
 I:Unable to mount '/auto0'
 I:Actual block device: '', current file system: 'vfat'
+`
 
 *UNABLE TO MOUNT indicates the storage may not be available while FAILED TO MOUNT indicates twrp presaged the device to be available.*
 
 All the necessary flags were parsed automatically:
+`
 /auto0 |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
    Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Removable Is_Storage 
+`
 
 But the Primary_Block_Device: /dev/block//sda1 was absent preliminary which was only included upon osb otg connection and mount:
+`
 :Processing '/auto2-1'
 I:Created '/auto2-1' folder.
 SubPartition_Of: /auto2
    Primary_Block_Device: /dev/block//sda1
+`
 
 The mount points were auto generated as /auto0 /auto1 /auto2 as per the instructions. The display names were all set to Storage automatically with mount points making them distinct.
 
 usb otg detection in recovery.log:
 
+`
 I:Found a match 'sda' '/devices/platform/mt_usb'
 I:Decrypt adopted storage starting
 I:PageManager::LoadFileToBuffer loading filename: '/data/system/storage.xml' directly
@@ -283,11 +302,46 @@ I:Created '/auto2-1' folder.
    Current_File_System: vfat
    Fstab_File_System: auto
    Backup_Method: files
+`
 
 Vold is noticeably slow in mounting and unmounting otg.
 
 usb otg removal:
+`
 I:/auto2-1 was removed by uevent data
 I:Set page: 'mount'
 I:Is_Mounted: Unable to find partition for path '/auto2-1'
 I:Is_Mounted: Unable to find partition for path '/auto2-1'
+`
+
+
+
+
+**BUILD 6.1**
+Supersession of `auto` mount flags with fathomable ones
+`
+/devices/bootdevice* /internalsd vfat defaults voldmanaged=sdcard0:auto
+/devices/platform/externdevice* /externalsd auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
+/devices/platform/mt_usb* /usbotg vfat defaults voldmanaged=usbotg:auto
+`
+
+new *ramdisk/etc/twrp.flags* in an attempt to provide better display names for external sdcard and otg storage devices:
+`
+/internalsd vfat /devices/bootdevice*
+/externalsd auto /devices/platform/externdevice* display="External SDcard",storage,wipeingui,removable,backup=0
+/usbotg vfat /devices/platform/mt_usb* display="USB-OTG",storage,removable,backup=0
+`
+
+RESULT
+Mount points with fathomable names were created as anticipated:
+`
+I:Processing '/internalsd'
+I:Created '/internalsd' folder.
+I:Processing '/externalsd'
+I:Created '/externalsd' folder.
+I:Processing '/usbotg'
+I:Created '/usbotg' folder.
+`
+twrp creates /usbotg-1 mount point in file system and Storage 1 in storage list upon otg connection.
+
+But all the names are still Storage in Mount despite setting different names in twrp.fstab and the names in Select Storage popup tab are seemingly unchangeable. Recovery log indicates the display names were set the same as mount points which was noticed in file manager.

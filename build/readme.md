@@ -345,3 +345,79 @@ I:Created '/usbotg' folder.
 twrp creates /usbotg-1 mount point in file system and Storage 1 in storage list upon otg connection.
 
 But all the names are still Storage in Mount despite setting different names in twrp.fstab and the names in Select Storage popup tab are seemingly unchangeable. Recovery log indicates the display names were set the same as mount points which was noticed in file manager.
+
+
+
+
+**BUILD 7**
+use recoverys.fstab
+
+* remove unhandled flags indicated in log:
+* remove recoveryonly flag in system and vendor lines
+* remove quota flag in /data line
+* change forceencrypt flag to encryptable in /data line
+* remove comma at the end of data flags as twrp fstab has the same
+* add flags=display for all devices with display names defined in twrp
+* add flag backup=1 in /vendor like twrp
+* voldlines reformatted to v1 with help from [a similar fstab](https://raw.githubusercontent.com/rokibhasansagar/android_device_twrp_WALTON_Primo_RX5/master/recovery/root/etc/recovery.fstab)
+
+voldlines are the only lines where mnt_flags defaults was kept intact in conformance with aforementioned fstab on github.
+
+* frp device /persistent in stock kept intact | /frp in twrp
+* lk device /bootloader in stock kept intact | /lk display uboot in twrp
+* lk2 device /bootloader2 in stock kept intact | /lk2 in twrp
+* para device /misc in stock kept intact | /para in twrp
+* /expdb /seccfg flags defaults defaults removed as no flag in twrp
+* tee1 device /tee1 in stock and twrp but display tee added like twrp
+* /gz1 /gz2 flags defaults defaults removed as no flag in twrp
+* /spmfw /mcupmfw flags defaults defaults removed as none in twrp
+* /odmdtbo flags defaults defaults removed as no flag in twrp
+* /loader_ext1 /loader_ext2 flags defaults defaults removed as none
+* add external sdcard and usb otg lines with two sources at the end
+`
+/external_sd      auto /dev/block/mmcblk1p1	/dev/block/mmcblk1 flags=display="External SDcard";storage;wipeingui;removable;backup=0
+/usbotg		          auto /dev/block/sda1		    /dev/block/sda flags=display="USB-OTG";storage;removable;backup=0
+`
+
+final verification
+* search for any leftover comma and replace with semicolon
+* verify block device source locations
+* ensure supersession of forceencrypt with encryptable
+
+RESULT
+Three storages in Storage list is gone but display name is flawed as usual:
+External SD Card
+USB-OTG
+
+Mount tab shows 4 new mountable devices which are actually subpartitions of vendor: protect_f protect_s nvdata nvcfg. These devices are bound together which results in mounting of them altogether upon mounting any one.
+
+voldlines were probably ignored due to starting with auto and not /auto which would have defined mount point name in file manager.
+Usb otg flags were finally parsed successfully:
+`
+/usbotg |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
+   Flags: Can_Be_Mounted Can_Be_Wiped Removable Is_Storage 
+   Primary_Block_Device: /dev/block/sda1
+   Alternate_Block_Device: /dev/block/sda
+   Display_Name: USB-OTG
+   Storage_Name: USB-OTG
+`
+
+log during initiation and upon pressing usb otg mount BEFORE 30 seconds
+`
+I:Unable to mount '/usbotg'
+I:Actual block device: '', current file system: 'auto'
+I:Unable to mount '/usbotg'
+I:Actual block device: '', current file system: 'auto'
+`
+
+This time twrp was UNABLE and NOT FAILED to mount usb otg as the latter would have implicated that twrp had anticipated usb otg to always be present like a non adopted or permanent storage which was caused by omission of flags parsing in BUILD 1 2 3 4 5 6
+
+log upon pressing usb otg mount RIGHT AFTER 30 seconds
+`
+I:sending message to add storage 65539
+I:error sending message to add storage 65539
+I:sending message to remove 65539
+I:error sending message to remove storage 65539
+Detection:
+I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host0/target0:0:0/0:0:0:0/block/sda' - add
+`

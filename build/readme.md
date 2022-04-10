@@ -177,7 +177,7 @@ Mixing semicolon delimited flags for fstab v1 with comma delimited flags for fst
 
 **Build 4**
 edit lines in *ramdisk/etc/recovery.fstab*
-comment out voldmanaged=flags appending # at the start:
+comment out voldmanaged=flags appending `#` at the start:
 `
 # /devices/bootdevice* auto vfat defaults voldmanaged=sdcard0:auto
 # /devices/platform/externdevice* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
@@ -421,3 +421,42 @@ I:error sending message to remove storage 65539
 Detection:
 I:Found no matching fstab entry for uevent device '/devices/platform/mt_usb/musb-hdrc/usb1/1-1/1-1:1.0/host0/target0:0:0/0:0:0:0/block/sda' - add
 `
+
+
+More unhandled flags emerged after removing flags `recoveryonly` and `quota` in BUILD 7 which was hinted in log:
+`
+=> Processing /etc/recovery.fstab
+I:Reading /etc/recovery.fstab
+I:Processing '/system'
+I:Unhandled fstab information 'wait;verify' in fstab line '/system           ext4 /dev/block/platform/bootdevice/by-name/system flags=display="system";ro wait;verify
+'
+E:Unhandled flag: 'ro'
+`
+
+
+
+**BUILD 7.1**
+use recovery7.fstab
+attempt to fix [this unhandled flags issue](../issues/11) by superseding SPACE with SEMICOLON between *mnt_flags* and *fs_mgr_flags*.
+
+RESULT
+Previously unhandled information of fs_mgr_flags were actually parsed successfully this time while all the mnt_flags were unhandled methodically.
+
+`wait,verify` flags of /system and /vendor partition were parsed successfully while mnt_flags `ro` was unhandled:
+`
+I:Processing '/system'
+E:Unhandled flag: 'ro'
+I:Processing '/vendor'
+I:Created '/vendor' folder.
+`
+
+Similarly mnt_flags of /data and /cache were also unhandled while the rest was parsed:
+`
+I:Processing '/data'
+E:Unhandled flag: 'noatime'
+E:Unhandled flag: 'nosuid'
+E:Unhandled flag: 'nodev'
+E:Unhandled flag: 'noauto_da_alloc'
+E:Unhandled flag: 'errors=panic'
+`
+Same is applicable for 4 vendor subpartitions.

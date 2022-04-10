@@ -179,9 +179,9 @@ Mixing semicolon delimited flags for fstab v1 with comma delimited flags for fst
 edit lines in *ramdisk/etc/recovery.fstab*
 comment out voldmanaged=flags appending `#` at the start:
 `
-# /devices/bootdevice* auto vfat defaults voldmanaged=sdcard0:auto
-# /devices/platform/externdevice* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
-# /devices/platform/mt_usb* auto vfat defaults voldmanaged=usbotg:auto
+#/devices/bootdevice* auto vfat defaults voldmanaged=sdcard0:auto
+#/devices/platform/externdevice* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
+#/devices/platform/mt_usb* auto vfat defaults voldmanaged=usbotg:auto
 `
 
 RESULT
@@ -437,7 +437,7 @@ E:Unhandled flag: 'ro'
 
 **BUILD 7.1**
 use recovery7.fstab
-attempt to fix [this unhandled flags issue](../issues/11) by superseding SPACE with SEMICOLON between *mnt_flags* and *fs_mgr_flags*.
+attempt to fix [this unhandled flags issue](../../../issues/11) by superseding SPACE with SEMICOLON between *mnt_flags* and *fs_mgr_flags*.
 
 RESULT
 Previously unhandled information of fs_mgr_flags were actually parsed successfully this time while all the mnt_flags were unhandled methodically.

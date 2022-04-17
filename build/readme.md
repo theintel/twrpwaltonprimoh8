@@ -460,3 +460,43 @@ E:Unhandled flag: 'noauto_da_alloc'
 E:Unhandled flag: 'errors=panic'
 `
 Same is applicable for 4 vendor subpartitions.
+
+
+
+
+**BUILD 7.2**
+use  recovery7.1.fstab
+* Remove mnt_flags in */system /vendor /data /cache* and 4 vendor subpartitions.
+* Fix a flag of the /bootloader2 subpartition of /bootloader. Previous it was mistakenly kept as in twrp `subpartitionof=/lk` while the /lk was modified to /bootloader in accordance with stock:
+`subpartitionof=/lk` to `subpartitionof=/bootloader`
+
+RESULT
+All the fs_mgr_flags were parsed smoothly:
+`
+=> Processing /etc/recovery.fstab
+I:Reading /etc/recovery.fstab
+I:Processing '/system'
+I:Processing '/vendor'
+I:Created '/vendor' folder.
+I:Processing '/data'
+I:Processing '/cache'
+I:Processing '/vendor/protect_f'
+I:Created '/vendor/protect_f' folder.
+I:Processing '/vendor/protect_s'
+I:Created '/vendor/protect_s' folder.
+I:Processing '/vendor/nvdata'
+I:Created '/vendor/nvdata' folder.
+I:Processing '/vendor/nvcfg'
+I:Created '/vendor/nvcfg' folder.
+`
+
+/vendor emerged in the backup tab. Restoration is preliminarily disabled as /vendor is regarded the same as /system due to safetynet check. So by default system and vendor are mounted read only even when system and vendor partitions are ticked in mount tab. The tick for mount system partition read only at the bottom in the mount tab must be disabled to restore /system and /vendor and also to modify files in /system and /vendor directories via twrp file manager.
+
+Backup and restore to and from usb otg is working perfectly.
+
+`
+/external_sd |  | Size: 0MB Used: 0MB Free: 0MB Backup Size: 0MB
+   Flags: Can_Be_Mounted Can_Be_Wiped Wipe_Available_in_GUI Removable Is_Storage 
+   Primary_Block_Device: /dev/block/mmcblk1p1
+   Alternate_Block_Device: /dev/block/mmcblk1
+`
